@@ -45,6 +45,11 @@ namespace Valora.Repositories
             return res;
         }
 
+        protected IQueryable<T> Query()
+        {
+            return Context.Set<T>();
+        }
+
         public void Update(T entity)
         {     
              _dbSet.Update(entity); 

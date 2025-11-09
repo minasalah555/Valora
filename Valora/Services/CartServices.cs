@@ -11,13 +11,20 @@ namespace Valora.Services
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
         }
-        public void addToCart(int cartId, int productId, int quantity)
+        public void addToCart( int UserID,int cartId, int productId, int quantity)
         {
- _cartRepository.AddToCart(cartId, productId, quantity);
+                _cartRepository.AddToCart(UserID, cartId, productId, quantity);
 
         }
 
 
+        public void showTheCart(int cartId)
+        {
+            _cartRepository.ShowTheCart( cartId);
 
+        }
+        public void deleteCart(int cartId) { 
+        
+        }
     }
 }

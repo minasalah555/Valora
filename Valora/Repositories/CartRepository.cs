@@ -8,28 +8,35 @@ namespace Valora.Repositories
         {
         }
 
-        public void AddToCart(int cartId, int productId, int quantity)
+        public void AddToCart(int UserID,int cartId, int productId, int quantity)
         {
-            var cart = GetByIDWithTracking(cartId).Result;
-            if (cart != null)
+
+            var cart = GetById(cartId).Result;
+            if (cart == null)
             {
-                var existingItem = cart.CartItems.FirstOrDefault(ci => ci.ProductID == productId);
-                if (existingItem != null)
+                cart = new Cart
                 {
-                    existingItem.Quantity += quantity;
-                }
-                else
-                {
-                    var newItem = new CartItem
-                    {
-                        ProductID = productId,
-                        Quantity = quantity,
-                        CartID = cartId
-                    };
-                    cart.CartItems.Add(newItem);
-                }
-                Update(cart);
+                    UserID = UserID,
+                    CartItems = new List<CartItem>()
+                };
+                Add(cart);
             }
+            var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += quantity;
+            }
+            else
+            {
+                var newItem = new CartItem
+                {
+                    ProductID = productId,
+                    Quantity = quantity,
+                    CartID = cart.ID
+                };
+                cart.CartItems.Add(newItem);
+            }
+            Update(cart);
 
 
         }
@@ -44,6 +51,41 @@ namespace Valora.Repositories
                     Console.WriteLine($"Product ID: {item.ProductID}, Quantity: {item.Quantity}");
                 }
             }
+        }
+        public void RemoveFromCart(int cartId, int productId, int quantity)
+        {
+            var cart = GetById(cartId).Result;
+            if (cart != null)
+            {
+                var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity -= quantity;
+                    if (existingItem.Quantity <= 0)
+                    {
+                        cart.CartItems.Remove(existingItem);
+                    }
+                    Update(cart);
+                 }
+            }
+        }
+
+        //public Task<Cart> GetCartByUserId(int userId)
+        //{
+        // var cart=  Query().Carts
+        //        .Include(c => c.CartItems)
+        //        .FirstOrDefaultAsync(c => c.UserID == userId);
+        //return cart;
+        //}
+
+        public void saveTheCart()
+        {
+            SaveChanges();
+        }
+
+        public Task<Cart> GetCartByUserId(int userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
