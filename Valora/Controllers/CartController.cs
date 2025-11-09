@@ -31,12 +31,19 @@ namespace Valora.Controllers
 
         public IActionResult ShowTheCart(int cartId)
         {
+
             CartDTO cartDTO = new CartDTO();
             cartDTO.UserId = "5";
             cartDTO.CartId = 1;
             cartDTO.Items.Add(new CartItemDTO { ProductId = 1, Quantity =2 });
             _cartRepository.ShowTheCart(cartId);
             return View(cartDTO);
+        }
+        public IActionResult DeleteCart(int cartId)
+        {
+
+
+                return View();
         }
     }
 }

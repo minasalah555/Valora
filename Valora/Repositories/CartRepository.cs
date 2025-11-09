@@ -1,5 +1,6 @@
 ﻿using Valora.Models;
 using Microsoft.EntityFrameworkCore;
+using Valora.DTOs;
 
 
 namespace Valora.Repositories
@@ -43,15 +44,27 @@ namespace Valora.Repositories
 
         }
 
-        public void ShowTheCart(int cartId)
+        public CartDTO ShowTheCart(int cartId)
         {
             var cart = GetById(cartId).Result;
             if (cart != null)
             {
-                foreach (var item in cart.CartItems)
+                var cartDTO = new CartDTO
                 {
-                    Console.WriteLine($"Product ID: {item.ProductID}, Quantity: {item.Quantity}");
-                }
+                    UserId = cart.UserID,
+                    CartId = cart.ID,
+                    Items = cart.CartItems.Select(item => new CartItemDTO
+                    {
+                        ProductId = item.ProductID,
+                        Quantity = item.Quantity
+                    }).ToList()
+                };
+                return cartDTO;
+            }
+            else
+            {
+                return null;
+
             }
         }
         public void RemoveFromCart(int cartId, int productId, int quantity)
