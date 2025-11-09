@@ -8,7 +8,7 @@ namespace Valora.Repositories
         {
         }
 
-        public void AddToCart(int UserID,int cartId, int productId, int quantity)
+        public void AddToCart(string UserID,int cartId, int productId, int quantity)
         {
 
             var cart = GetById(cartId).Result;
