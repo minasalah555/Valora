@@ -1,4 +1,6 @@
 ﻿using Valora.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Valora.Repositories
 {
@@ -8,7 +10,7 @@ namespace Valora.Repositories
         {
         }
 
-        public void AddToCart(string UserID,int cartId, int productId, int quantity)
+        public void AddToCart(string UserID, int cartId, int productId, int quantity)
         {
 
             var cart = GetById(cartId).Result;
@@ -66,15 +68,15 @@ namespace Valora.Repositories
                         cart.CartItems.Remove(existingItem);
                     }
                     Update(cart);
-                 }
+                }
             }
         }
 
         //public Task<Cart> GetCartByUserId(int userId)
         //{
-        // var cart=  Query().Carts
-        //        .Include(c => c.CartItems)
-        //        .FirstOrDefaultAsync(c => c.UserID == userId);
+        //var cart = Query().Carts
+        //       .Include(c => c.CartItems)
+        //       .FirstOrDefaultAsync(c => c.UserID == userId);
         //return cart;
         //}
 
@@ -83,9 +85,18 @@ namespace Valora.Repositories
             SaveChanges();
         }
 
-        public Task<Cart> GetCartByUserId(int userId)
+        public Task<Cart> GetCartByUserId(string userId)
         {
-            throw new NotImplementedException();
+            var cart = Query().
+                   Include(c => c.CartItems)
+                   .FirstOrDefaultAsync(c => c.UserID == userId);
+            return cart;
         }
+
+         
     }
-}
+
+
+
+
+    }

@@ -1,0 +1,51 @@
+﻿@model Valora.DTOs.CartDTO
+
+@{
+    ViewData["Title"] = "ShowTheCart";
+}
+
+<h1>ShowTheCart</h1>
+
+<div>
+    <h4>CartDTO</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="CartId"></label>
+        </dt>
+        <dd class="col-sm-10">
+            <span asp-for="CartId"></span>
+        </dd>
+
+        <dt class="col-sm-2">
+            <label asp-for="UserId"></label>
+        </dt>
+        <dd class="col-sm-10">
+            <span asp-for="UserId"></span>
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Items"></label>
+
+        </dt>
+
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>
+                    <span asp-for="@item.ProductId"></span>
+                </td>
+                <td>
+                    <span asp-for="@item.Quantity"></span>
+                </td>
+            </tr>
+        }
+
+
+
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.CartId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
