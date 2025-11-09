@@ -46,7 +46,7 @@ namespace Valora.Repositories
         }
 
         public void Update(T entity)
-        {
+        {     
              _dbSet.Update(entity); 
         }
 
