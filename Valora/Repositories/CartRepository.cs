@@ -1,6 +1,7 @@
 ﻿using Valora.Models;
 using Microsoft.EntityFrameworkCore;
 using Valora.DTOs;
+using System.Threading.Tasks;
 
 
 namespace Valora.Repositories
@@ -11,10 +12,10 @@ namespace Valora.Repositories
         {
         }
 
-        public void AddToCart(string UserID, int cartId, int productId, int quantity)
+        public   async Task AddToCart(string UserID, int cartId, int productId, int quantity)
         {
 
-            var cart = GetById(cartId).Result;
+            var cart =  await GetById(cartId);
             if (cart == null)
             {
                 cart = new Cart
@@ -44,9 +45,9 @@ namespace Valora.Repositories
 
         }
 
-        public CartDTO ShowTheCart(int cartId)
+        public async Task<CartDTO> ShowTheCart(int cartId)
         {
-            var cart = GetById(cartId).Result;
+            var cart =  await GetById(cartId);
             if (cart != null)
             {
                 var cartDTO = new CartDTO
@@ -67,9 +68,9 @@ namespace Valora.Repositories
 
             }
         }
-        public void RemoveFromCart(int cartId, int productId, int quantity)
+        public async Task RemoveFromCart(int cartId, int productId, int quantity)
         {
-            var cart = GetById(cartId).Result;
+            var cart =  await GetById(cartId);
             if (cart != null)
             {
                 var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
@@ -84,8 +85,14 @@ namespace Valora.Repositories
                 }
             }
         }
+        public override async Task<Cart> GetById(int id)
+        {
+           return await Query().
+                   Include(c => c.CartItems)
+                   .FirstOrDefaultAsync(c => c.ID == id);
+         }
 
-  
+
 
         public void saveTheCart()
         {

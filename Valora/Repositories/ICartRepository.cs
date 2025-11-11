@@ -7,8 +7,8 @@ namespace Valora.Repositories
     {
 
         public Task AddToCart(string userId, int cartId, int productId, int quantity);
-        CartDTO ShowTheCart(int cartId);
-        public void RemoveFromCart(int cartId, int productId, int quantity);
+       public Task< CartDTO> ShowTheCart(int cartId);
+        public Task RemoveFromCart(int cartId, int productId, int quantity);
 
         Task<Cart> GetCartByUserId(string userId);
     }

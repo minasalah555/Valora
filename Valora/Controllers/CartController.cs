@@ -12,39 +12,35 @@ namespace Valora.Controllers
         private readonly ICartServices _cartServices;
         public CartController(ICartServices cartServices)
         {
-
             _cartServices = cartServices;
         }
+
         public IActionResult Index()
         {
             return View();
         }
-        public IActionResult AddToCart(CartItemViewModel item)
+
+         public async Task<IActionResult> AddToCart(CartItemViewModel item)
         {
+            if (item == null || item.quantity <= 0)
+                return BadRequest();
 
+            await _cartServices.addToCart(item.USerId, item.cartId, item.productId, item.quantity);
 
-            _cartServices.addToCart(item.USerId,item.cartId, item.productId, item.quantity);
-
-            return View();
+             return RedirectToAction(nameof(ShowTheCart), new { cartId = item.cartId });
         }
 
-
-        public IActionResult ShowTheCart(int cartId)
+        public async Task<IActionResult> ShowTheCart(int cartId)
         {
-
-            CartDTO cartDTO = new CartDTO();
-            cartDTO.UserId = "5";
-            cartDTO.CartId = 1;
-            cartDTO.Items.Add(new CartItemDTO { ProductId = 1, Quantity =2 });
-            _cartServices.showTheCart(cartId);
+            var cartDTO = await _cartServices.showTheCart(cartId);
             return View(cartDTO);
         }
-        //uncompleted
-        public IActionResult DeleteCart(int cartId)
-        {
 
-        _cartServices.deleteFromCart(1); 
-            return View();
+        [HttpPost]
+        public async Task<IActionResult> DeleteCart(int cartId)
+        {
+            await _cartServices.Delete(cartId);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
