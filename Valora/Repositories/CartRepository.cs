@@ -11,10 +11,10 @@ namespace Valora.Repositories
         {
         }
 
-        public void AddToCart(string UserID, int cartId, int productId, int quantity)
+        public   async Task AddToCart(string UserID, int cartId, int productId, int quantity)
         {
 
-            var cart = GetById(cartId).Result;
+            var cart =  await GetById(cartId);
             if (cart == null)
             {
                 cart = new Cart
@@ -22,7 +22,7 @@ namespace Valora.Repositories
                     UserID = UserID,
                     CartItems = new List<CartItem>()
                 };
-                Add(cart);
+                await Add(cart);
             }
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
@@ -39,14 +39,14 @@ namespace Valora.Repositories
                 };
                 cart.CartItems.Add(newItem);
             }
-            Update(cart);
+         Update(cart);
 
 
         }
 
-        public CartDTO ShowTheCart(int cartId)
+        public async Task<CartDTO> ShowTheCart(int cartId)
         {
-            var cart = GetById(cartId).Result;
+            var cart =  await GetById(cartId);
             if (cart != null)
             {
                 var cartDTO = new CartDTO
@@ -67,9 +67,9 @@ namespace Valora.Repositories
 
             }
         }
-        public void RemoveFromCart(int cartId, int productId, int quantity)
+        public async Task RemoveFromCart(int cartId, int productId, int quantity)
         {
-            var cart = GetById(cartId).Result;
+            var cart =  await GetById(cartId);
             if (cart != null)
             {
                 var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
@@ -84,19 +84,24 @@ namespace Valora.Repositories
                 }
             }
         }
-
-  
-
-        public void saveTheCart()
+        public override async Task<Cart> GetById(int id)
         {
-            SaveChanges();
+           return await Query().
+                   Include(c => c.CartItems)
+                   .FirstOrDefaultAsync(c => c.ID == id);
+         }
+
+
+
+        public async Task saveTheCart()
+        {
+          await  SaveChanges();
         }
 
         public Task<Cart> GetCartByUserId(string userId)
         {
             var cart = Query().
-                   Include(c => c.CartItems)
-                   .FirstOrDefaultAsync(c => c.UserID == userId);
+                    FirstOrDefaultAsync(c => c.UserID == userId);
             return cart;
         }
 

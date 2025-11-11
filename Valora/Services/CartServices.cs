@@ -1,4 +1,6 @@
-﻿using Valora.DTOs;
+﻿using System.Threading.Tasks;
+using Valora.DTOs;
+using Valora.Models;
 using Valora.Repositories;
 
 namespace Valora.Services
@@ -12,23 +14,45 @@ namespace Valora.Services
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
         }
-        public void addToCart( string UserID,int cartId, int productId, int quantity)
+        public async Task addToCart( string UserID,int cartId, int productId, int quantity)
         {
-                _cartRepository.AddToCart(UserID, cartId, productId, quantity);
+              await  _cartRepository.AddToCart(UserID, cartId, productId, quantity);
 
         }
 
-
-
-
-        public CartDTO showTheCart(int cartId)
-        {
-         CartDTO cartDTO= _cartRepository.ShowTheCart(cartId);
-            return cartDTO;
-
-        }
-        public void deleteFromCart(int cartId) { 
+        public async Task deleteFromCart(int cartId) { 
+        await    _cartRepository.Delete(cartId);
         
+        }
+
+        public async Task<CartDTO> showTheCart(int cartId)
+        {
+         return await _cartRepository.ShowTheCart(cartId);
+         }
+
+        public async Task Add(Cart cart)
+        {
+            await _cartRepository.Add(cart);  }
+
+        public async Task Update(Cart cart)
+        {
+
+              _cartRepository.Update(cart);
+        }
+
+        public async Task Delete(int id)
+        {
+           await _cartRepository.Delete(id);        }
+ 
+        public async Task Save()
+        {
+            await _cartRepository.SaveChanges();
+        }
+
+        public async Task<CartDTO> showTheCartPerUser(string UserID)
+        {
+            Cart cart = await _cartRepository.GetCartByUserId(UserID);
+            cart.CartItems= await _cartItemRepository.GetAll();
         }
     }
 }

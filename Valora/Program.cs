@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Valora.Data;
 using Valora.Models;
 using Valora.Repositories;
+using Valora.Services;
 
 namespace Valora
 {
@@ -20,6 +21,7 @@ namespace Valora
                 //options.Password.RequireUppercase = false;
             })
                 .AddEntityFrameworkStores<Context>();
+            builder.Services.AddScoped<ICartServices, CartServices>();
             builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
 
@@ -27,6 +29,7 @@ namespace Valora
             builder.Services.AddDbContext<Context>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+
             });
 
             var app = builder.Build();

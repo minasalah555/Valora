@@ -33,7 +33,7 @@ namespace Valora.Repositories
             return _dbSet.Where(s => !s.IsDeleted);
         }
 
-        public async Task<T?> GetById(int Id)
+        public  virtual async Task<T?> GetById(int Id)
         {
             var res = await _dbSet.FirstOrDefaultAsync(s => s.ID == Id && !s.IsDeleted);
             return res;
