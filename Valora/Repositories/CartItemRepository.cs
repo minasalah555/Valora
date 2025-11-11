@@ -1,4 +1,5 @@
-﻿using Valora.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Valora.Models;
 namespace Valora.Repositories
 
 {
@@ -6,6 +7,12 @@ namespace Valora.Repositories
     {
         public CartItemRepository(Context context) : base(context)
         {
+        }
+
+        public IQueryable<CartItem> getItemsInCart(int cartID)
+        {
+            return Query().Where(c => c.CartID == cartID);
+                            
         }
     }
 }

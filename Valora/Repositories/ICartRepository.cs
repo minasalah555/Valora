@@ -6,10 +6,12 @@ namespace Valora.Repositories
     public interface ICartRepository : IRepository<Cart>
     {
 
-        public Task AddToCart(string userId, int cartId, int productId, int quantity);
-       public Task< CartDTO> ShowTheCart(int cartId);
-        public Task RemoveFromCart(int cartId, int productId, int quantity);
-
-        Task<Cart> GetCartByUserId(string userId);
+        public Task AddToCart(string userId, int productId);
+         public Task< CartDTO> ShowTheCart(int cartId);
+        public Task RemoveFromCart(string userID, int productId);
+        public Task<CartDTO> ShowTheCartByUserId(string userId);
+        public   Task cancellTheItem(int cardID, int producID);
+       public Task<Cart> GetCartByUserId(string userId);
+        public Task saveTheCart();
     }
 }

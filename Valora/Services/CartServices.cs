@@ -14,49 +14,58 @@ namespace Valora.Services
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
         }
-        public async Task addToCart( string UserID,int cartId, int productId, int quantity)
+        public async Task<CartDTO> ShowCartAsync(int cartId)
         {
-              await  _cartRepository.AddToCart(UserID, cartId, productId, quantity);
-
+            var cart = await _cartRepository.GetById(cartId);
+            if (cart == null) return new CartDTO();
+            return MapCart(cart);
         }
 
-        public async Task deleteFromCart(int cartId) { 
-        await    _cartRepository.Delete(cartId);
-        
+        public async Task<CartDTO> ShowCartForUserAsync(string userId)
+        {
+            var cart = await _cartRepository.GetCartByUserId(userId);
+            if (cart == null) return new CartDTO();
+            return MapCart(cart);
         }
 
-        public async Task<CartDTO> showTheCart(int cartId)
+        public async Task<CartDTO> AddToCartAsync(string userId,  int productId)
         {
-         return await _cartRepository.ShowTheCart(cartId);
+             await _cartRepository.AddToCart(userId, productId);
+             var updated = await _cartRepository.GetCartByUserId(userId);
+            return updated == null ? new CartDTO() : MapCart(updated);
+        }
+
+        public async Task<CartDTO> RemoveItemAsync(string userId, int productId)
+        {
+            Cart cart= await _cartRepository.GetCartByUserId(userId);
+
+            await _cartRepository.GetCartByUserId(userId);
+             var updated = await _cartRepository.GetCartByUserId(userId);
+            return updated == null ? new CartDTO() : MapCart(updated);
+        }
+
+        public async Task DeleteCartAsync(int cartId)
+        {
+            await _cartRepository.Delete(cartId);
          }
 
-        public async Task Add(Cart cart)
+        private static CartDTO MapCart(Cart cart)
         {
-            await _cartRepository.Add(cart);  }
-
-        public async Task Update(Cart cart)
-        {
-
-              _cartRepository.Update(cart);
+            return new CartDTO
+            {
+                CartId = cart.ID,
+                UserId = cart.UserID,
+                Items = cart.CartItems.Select(ci => new CartItemDTO
+                {
+                    ProductId = ci.ProductID,
+                    Quantity = ci.Quantity
+                }).ToList()
+            };
         }
-
-        public async Task Delete(int id)
+        public async Task SaveChangesAsync()
         {
-           await _cartRepository.Delete(id);        }
- 
-        public async Task Save()
-        {
-            await _cartRepository.SaveChanges();
-        }
-
-        public async Task<CartDTO> showTheCartPerUser(string UserID)
-        {
-
-            Cart cartDTO =  await _cartRepository.GetCartByUserId(UserID);
-            return new CartDTO();
-
-            //Cart cart = await _cartRepository.GetCartByUserId(UserID);
-            //cart.CartItems= await _cartItemRepository.GetAll();
+            await _cartRepository.saveTheCart();
+            ;
         }
     }
 }
