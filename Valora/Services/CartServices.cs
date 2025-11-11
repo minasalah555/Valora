@@ -51,8 +51,12 @@ namespace Valora.Services
 
         public async Task<CartDTO> showTheCartPerUser(string UserID)
         {
-            Cart cart = await _cartRepository.GetCartByUserId(UserID);
-            cart.CartItems= await _cartItemRepository.GetAll();
+
+            Cart cartDTO =  await _cartRepository.GetCartByUserId(UserID);
+            return new CartDTO();
+
+            //Cart cart = await _cartRepository.GetCartByUserId(UserID);
+            //cart.CartItems= await _cartItemRepository.GetAll();
         }
     }
 }

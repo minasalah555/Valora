@@ -86,9 +86,8 @@ namespace Valora.Repositories
         }
         public override async Task<Cart> GetById(int id)
         {
-           return await Query().
-                   Include(c => c.CartItems)
-                   .FirstOrDefaultAsync(c => c.ID == id);
+           return await Query().FirstOrDefaultAsync(c => c.ID == id);
+
          }
 
 
@@ -98,9 +97,9 @@ namespace Valora.Repositories
           await  SaveChanges();
         }
 
-        public Task<Cart> GetCartByUserId(string userId)
+        public async Task<Cart> GetCartByUserId(string userId)
         {
-            var cart = Query().
+            var cart = await Query().
                     FirstOrDefaultAsync(c => c.UserID == userId);
             return cart;
         }
