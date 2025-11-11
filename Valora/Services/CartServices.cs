@@ -1,8 +1,9 @@
-﻿using Valora.Repositories;
+﻿using Valora.DTOs;
+using Valora.Repositories;
 
 namespace Valora.Services
 {
-    public class CartServices
+    public class CartServices : ICartServices
     {
         private readonly ICartRepository _cartRepository;
         private readonly ICartItemRepository _cartItemRepository;
@@ -20,12 +21,13 @@ namespace Valora.Services
 
 
 
-        public void showTheCart(int cartId)
+        public CartDTO showTheCart(int cartId)
         {
-            _cartRepository.ShowTheCart( cartId);
+         CartDTO cartDTO= _cartRepository.ShowTheCart(cartId);
+            return cartDTO;
 
         }
-        public void deleteCart(int cartId) { 
+        public void deleteFromCart(int cartId) { 
         
         }
     }
