@@ -366,3 +366,5 @@ FodyWeavers.xsd
 Valora/appsettings.json
 Valora/appsettings.Development.json
 /Valora/Migrations/20251111085315_init.cs
+/Valora/Migrations/20251111085315_init.Designer.cs
+/Valora/Migrations/ContextModelSnapshot.cs
