@@ -27,8 +27,9 @@ namespace Valora.Data
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<IdentityUserLogin<string>>().HasNoKey();
-            builder.Entity<IdentityUserToken<string>>().HasNoKey();
+            base.OnModelCreating(builder);
+            //builder.Entity<IdentityUserLogin<string>>().HasNoKey();
+            //builder.Entity<IdentityUserToken<string>>().HasNoKey();
 
             //modelBuilder.Entity<IdentityUserRole<string>>().HasNoKey();
 
