@@ -368,3 +368,5 @@ Valora/appsettings.Development.json
 /Valora/Migrations/20251111085315_init.cs
 /Valora/Migrations/20251111085315_init.Designer.cs
 /Valora/Migrations/ContextModelSnapshot.cs
+/Valora/Migrations/20251111131629_init2.Designer.cs
+/Valora/Migrations/20251111131629_init2.cs
