@@ -2,18 +2,18 @@
 using Valora.DTOs;
 using Valora.Models;
 using Valora.Repositories;
+using Valora.Services;
 using Valora.ViewModels;
 
 namespace Valora.Controllers
 {
     public class CartController : Controller
     {
-        private readonly ICartItemRepository _cartItemRepository;
-        private readonly ICartRepository _cartRepository;
-        public CartController(ICartRepository cartRepository,ICartItemRepository cartItemRepository)
+        private readonly ICartServices _cartServices;
+        public CartController(ICartServices cartServices)
         {
-            _cartRepository = cartRepository;
-            _cartItemRepository = cartItemRepository;
+
+            _cartServices = cartServices;
         }
         public IActionResult Index()
         {
@@ -21,9 +21,9 @@ namespace Valora.Controllers
         }
         public IActionResult AddToCart(CartItemViewModel item)
         {
-  
 
-            _cartRepository.AddToCart(item.USerId,item.cartId, item.productId, item.quantity);
+
+            _cartServices.addToCart(item.USerId,item.cartId, item.productId, item.quantity);
 
             return View();
         }
@@ -36,14 +36,15 @@ namespace Valora.Controllers
             cartDTO.UserId = "5";
             cartDTO.CartId = 1;
             cartDTO.Items.Add(new CartItemDTO { ProductId = 1, Quantity =2 });
-            _cartRepository.ShowTheCart(cartId);
+            _cartServices.showTheCart(cartId);
             return View(cartDTO);
         }
+        //uncompleted
         public IActionResult DeleteCart(int cartId)
         {
 
-
-                return View();
+        _cartServices.deleteFromCart(1); 
+            return View();
         }
     }
 }

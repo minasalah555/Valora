@@ -63,7 +63,7 @@ namespace Valora.Repositories
             }
             else
             {
-                return null;
+                return new CartDTO();
 
             }
         }
@@ -85,13 +85,7 @@ namespace Valora.Repositories
             }
         }
 
-        //public Task<Cart> GetCartByUserId(int userId)
-        //{
-        //var cart = Query().Carts
-        //       .Include(c => c.CartItems)
-        //       .FirstOrDefaultAsync(c => c.UserID == userId);
-        //return cart;
-        //}
+  
 
         public void saveTheCart()
         {

@@ -9,6 +9,7 @@ namespace Valora.Models
         public int Price { get; set; }
         public int StockQuantity { get; set; }
         public string ImgUrl { get; set; }
+
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
         public Category Category { get; set; }
