@@ -1,7 +1,6 @@
 ﻿using Valora.Models;
 using Microsoft.EntityFrameworkCore;
 using Valora.DTOs;
-using System.Threading.Tasks;
 
 
 namespace Valora.Repositories
@@ -23,7 +22,7 @@ namespace Valora.Repositories
                     UserID = UserID,
                     CartItems = new List<CartItem>()
                 };
-                Add(cart);
+                await Add(cart);
             }
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
@@ -40,7 +39,7 @@ namespace Valora.Repositories
                 };
                 cart.CartItems.Add(newItem);
             }
-            Update(cart);
+         Update(cart);
 
 
         }
@@ -94,16 +93,15 @@ namespace Valora.Repositories
 
 
 
-        public void saveTheCart()
+        public async Task saveTheCart()
         {
-            SaveChanges();
+          await  SaveChanges();
         }
 
         public Task<Cart> GetCartByUserId(string userId)
         {
             var cart = Query().
-                   Include(c => c.CartItems)
-                   .FirstOrDefaultAsync(c => c.UserID == userId);
+                    FirstOrDefaultAsync(c => c.UserID == userId);
             return cart;
         }
 

@@ -12,10 +12,13 @@ namespace Valora.Services
         Task Update(Cart cart);
         Task Delete(int id);
         Task Save();
+        public Task<CartDTO> showTheCartPerUser(string UserID);
+
+
 
 
 
 
 
     }
-    }
+}

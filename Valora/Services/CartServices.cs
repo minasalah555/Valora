@@ -8,10 +8,12 @@ namespace Valora.Services
     public class CartServices : ICartServices
     {
         private readonly ICartRepository _cartRepository;
-         public CartServices(ICartRepository cartRepository)
+        private readonly ICartItemRepository _cartItemRepository;
+        public CartServices(ICartRepository cartRepository, ICartItemRepository cartItemRepository)
         {
             _cartRepository = cartRepository;
-         }
+            _cartItemRepository = cartItemRepository;
+        }
         public async Task addToCart( string UserID,int cartId, int productId, int quantity)
         {
               await  _cartRepository.AddToCart(UserID, cartId, productId, quantity);
@@ -40,11 +42,17 @@ namespace Valora.Services
 
         public async Task Delete(int id)
         {
-            _cartRepository.Delete(id);   
-        }
-
+           await _cartRepository.Delete(id);        }
+ 
         public async Task Save()
         {
-            await _cartRepository.SaveChanges();        }
+            await _cartRepository.SaveChanges();
+        }
+
+        public async Task<CartDTO> showTheCartPerUser(string UserID)
+        {
+            Cart cart = await _cartRepository.GetCartByUserId(UserID);
+            cart.CartItems= await _cartItemRepository.GetAll();
+        }
     }
 }
