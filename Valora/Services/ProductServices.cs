@@ -16,7 +16,7 @@ namespace Valora.Services
         public async Task<List<Product>> GetAll() => await _productRepo.GetAll().ToListAsync();
         public async Task<Product?> GetById(int id) => await _productRepo.GetById(id);
         public async Task Add(Product product) => await _productRepo.Add(product);
-        public async Task Update(Product product) => _productRepo.Update(product);
+        public void Update(Product product) => _productRepo.Update(product);
         public async Task Delete(int id) => await _productRepo.Delete(id);
         public async Task Save() => await _productRepo.SaveChanges();
     }
