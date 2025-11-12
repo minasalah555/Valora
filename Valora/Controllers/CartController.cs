@@ -52,7 +52,7 @@ namespace Valora.Controllers
 
         public async Task<IActionResult> ShowTheCart(int cartId)
         {
-            var cartDTO = await _cartServices.showTheCart(cartId);
+            var cartDTO = await _cartServices.ShowCartAsync(cartId);
             return View(cartDTO);
         }
 
@@ -76,9 +76,10 @@ namespace Valora.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCart(int cartId)
         {
-            await _cartServices.Delete(cartId);
+            await _cartServices.DeleteCartAsync(cartId);
             return RedirectToAction(nameof(Index));
         }
 

@@ -14,6 +14,12 @@ namespace Valora.Services
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
         }
+        public async Task<CartDTO> ShowCartAsync(int cartId)
+        {
+            var cart = await _cartRepository.GetById(cartId);
+            if (cart == null) return new CartDTO();
+            return MapCart(cart);
+        }
       public async Task<int> addToCart( string UserID,int cartId, int productId, int quantity)
       {
           // repository now returns the actual cart id (new or existing)
@@ -24,13 +30,19 @@ namespace Valora.Services
 
       }
 
-        public async Task deleteFromCart(int cartId) { 
-        await    _cartRepository.Delete(cartId);
-        
+        public async Task<CartDTO> ShowCartForUserAsync(string userId)
+        {
+            var cart = await _cartRepository.GetCartByUserId(userId);
+            if (cart == null) return new CartDTO();
+            return MapCart(cart);
         }
 
-        public async Task<CartDTO> showTheCart(int cartId)
+        public async Task<CartDTO> AddToCartAsync(string userId,  int productId)
         {
+             await _cartRepository.AddToCart(userId, productId);
+             var updated = await _cartRepository.GetCartByUserId(userId);
+            return updated == null ? new CartDTO() : MapCart(updated);
+        }
          return await _cartRepository.ShowTheCart(cartId);
          }
 
@@ -53,23 +65,37 @@ namespace Valora.Services
         {
             await _cartRepository.Add(cart);  }
 
-        public async Task Update(Cart cart)
+        public async Task<CartDTO> RemoveItemAsync(string userId, int productId)
         {
+            Cart cart= await _cartRepository.GetCartByUserId(userId);
 
-              _cartRepository.Update(cart);
+            await _cartRepository.GetCartByUserId(userId);
+             var updated = await _cartRepository.GetCartByUserId(userId);
+            return updated == null ? new CartDTO() : MapCart(updated);
         }
 
-        public async Task Delete(int id)
+        public async Task DeleteCartAsync(int cartId)
         {
-           await _cartRepository.Delete(id);        }
- 
-        public async Task Save()
-        {
-            await _cartRepository.SaveChanges();
-        }
+            await _cartRepository.Delete(cartId);
+         }
 
-        public async Task<CartDTO> showTheCartPerUser(string UserID)
+        private static CartDTO MapCart(Cart cart)
         {
+            return new CartDTO
+            {
+                CartId = cart.ID,
+                UserId = cart.UserID,
+                Items = cart.CartItems.Select(ci => new CartItemDTO
+                {
+                    ProductId = ci.ProductID,
+                    Quantity = ci.Quantity
+                }).ToList()
+            };
+        }
+        public async Task SaveChangesAsync()
+        {
+            await _cartRepository.saveTheCart();
+            ;
             Cart cart =  await _cartRepository.GetCartByUserId(UserID);
             return new CartDTO
             {

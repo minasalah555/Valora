@@ -7,8 +7,10 @@ namespace Valora.Repositories
 {
     public class CartRepository : Repository<Cart>, ICartRepository
     {
+        private readonly Context _context;
         public CartRepository(Context context) : base(context)
         {
+            _context = context;
         }
 
         public async Task<int> AddToCart(string UserID, int cartId, int productId, int quantity)
@@ -30,14 +32,14 @@ namespace Valora.Repositories
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
             {
-                existingItem.Quantity += quantity;
+                existingItem.Quantity += 1;
             }
             else
             {
                 var newItem = new CartItem
                 {
                     ProductID = productId,
-                    Quantity = quantity,
+                    Quantity = 1,
                     CartID = cart.ID
                 };
                 cart.CartItems.Add(newItem);
@@ -71,7 +73,24 @@ namespace Valora.Repositories
 
             }
         }
-        public async Task RemoveFromCart(int cartId, int productId, int quantity)
+        public async Task<CartDTO> ShowTheCartByUserId(string userId)
+        {
+            var cart = await GetCartByUserId(userId);
+
+            return new CartDTO
+            {
+                CartId = cart.ID,
+                UserId = cart.UserID,
+                Items = cart.CartItems.Select(item => new CartItemDTO
+                {
+                    ProductId = item.ProductID,
+                    Quantity = item.Quantity
+                }).ToList()
+            };
+        }
+
+
+        public async Task RemoveFromCart(string userID, int productId)
         {
             var cart = await GetById(cartId);
             if (cart != null)
@@ -80,7 +99,7 @@ namespace Valora.Repositories
                 var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
                 if (existingItem != null)
                 {
-                    existingItem.Quantity -= quantity;
+                    existingItem.Quantity -= 1;
                     if (existingItem.Quantity <= 0)
                     {
                         cart.CartItems.Remove(existingItem);
