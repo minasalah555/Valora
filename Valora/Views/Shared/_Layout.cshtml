@@ -70,6 +70,13 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="SignOut">LogOut</a>
                             </li>
+                            @* Show admin dashboard link only to users in Admin role *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="ProductAdmin" asp-action="Index">Admin</a>
+                                </li>
+                            }
                         }
                         else
                         { 

@@ -32,14 +32,15 @@ namespace Valora.Repositories
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
             {
-                existingItem.Quantity += 1;
+                // Respect the requested quantity when adding to an existing item
+                existingItem.Quantity += quantity;
             }
             else
             {
                 var newItem = new CartItem
                 {
                     ProductID = productId,
-                    Quantity = 1,
+                    Quantity = quantity,
                     CartID = cart.ID
                 };
                 cart.CartItems.Add(newItem);
@@ -92,7 +93,13 @@ namespace Valora.Repositories
 
         public async Task RemoveFromCart(int cartId, int productId, int quantity)
         {
-            var cart = await GetById(cartId);
+            // Load the cart including CartItems with tracking so EF Core detects removals/changes
+            // to the CartItems collection. Base GetByIDWithTracking doesn't include navigation
+            // properties, so query explicitly with Include(...).AsTracking().
+            var cart = await Query()
+                .Include(c => c.CartItems)
+                .AsTracking()
+                .FirstOrDefaultAsync(c => c.ID == cartId && !c.IsDeleted);
             if (cart == null) return;
             cart.CartItems ??= new List<CartItem>();
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);

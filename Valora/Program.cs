@@ -47,6 +47,46 @@ namespace Valora
 
             var app = builder.Build();
 
+            // Seed admin role and user on startup
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var roleManager = services.GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<ApplicationRole>>();
+                    var userManager = services.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>();
+
+                    const string adminRole = "Admin";
+                    const string adminEmail = "admin@local";
+                    const string adminPassword = "Admin123!";
+
+                    // Ensure role exists
+                    var roleExists = roleManager.RoleExistsAsync(adminRole).GetAwaiter().GetResult();
+                    if (!roleExists)
+                    {
+                        var r = new ApplicationRole { Name = adminRole };
+                        roleManager.CreateAsync(r).GetAwaiter().GetResult();
+                    }
+
+                    // Ensure admin user exists
+                    var adminUser = userManager.FindByEmailAsync(adminEmail).GetAwaiter().GetResult();
+                    if (adminUser == null)
+                    {
+                        adminUser = new ApplicationUser { UserName = adminEmail, Email = adminEmail };
+                        var createResult = userManager.CreateAsync(adminUser, adminPassword).GetAwaiter().GetResult();
+                        if (createResult.Succeeded)
+                        {
+                            userManager.AddToRoleAsync(adminUser, adminRole).GetAwaiter().GetResult();
+                        }
+                    }
+
+                }
+                catch
+                {
+                    // Swallow errors here to avoid preventing app startup; log if you want.
+                }
+            }
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

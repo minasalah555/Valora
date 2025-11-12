@@ -33,16 +33,10 @@ namespace Valora.Services
 
         public async Task RemoveItemFromCart(int cartId, int productId)
         {
-            var cart = await _cartRepository.GetById(cartId);
-            if (cart == null) return;
-            cart.CartItems ??= new List<CartItem>();
-            var existing = cart.CartItems.FirstOrDefault(ci => ci.ProductID == productId);
-            if (existing != null)
-            {
-                cart.CartItems.Remove(existing);
-                _cartRepository.Update(cart);
-                await _cartRepository.SaveChanges();
-            }
+            // Delegate removal logic to the repository which handles persistence and quantity logic.
+            // Use a large quantity so the repository will remove the item entirely (it subtracts the
+            // provided quantity and removes when <= 0).
+            await _cartRepository.RemoveFromCart(cartId, productId, int.MaxValue);
         }
 
         public async Task deleteFromCart(int cartId)
