@@ -1,0 +1,85 @@
+@{
+    ViewData["Title"] = "Categories";
+}
+
+@inject Valora.Data.Context Db
+<style>
+    .category-section-title { letter-spacing:.15em; font-weight:600; font-size:1rem; text-transform:uppercase; margin-top:3rem; margin-bottom:1rem; color:#333; }
+    .product-card { border-radius:0; border:1px solid #d1d1d1; background:#fff; }
+    .product-card img { object-fit:cover; height:160px; }
+    .add-to-cart-btn { font-size:.65rem; letter-spacing:.08em; }
+    .anchor-spacer { position:relative; top:-80px; }
+    .mini-divider { height:1px; background:#cfcfcf; margin:2.5rem 0 1.5rem; }
+    .price { font-weight:600; font-size:.9rem; }
+    .cat-label { font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:#666; }
+</style>
+
+<div class="container py-4">
+    <h1 class="display-6 fw-light text-center text-uppercase mb-5">Browse Categories</h1>
+
+    <!-- Paintings / Drawings Group -->
+    <span id="paintings" class="anchor-spacer"></span>
+    <div class="mini-divider"></div>
+    <div class="category-section-title">Paintings / Drawings</div>
+    <div class="row g-4">
+        @{ var paintingCatIds = new[]{1,2,3,4,5}; }
+        @foreach (var product in Db.Products.Where(p=> paintingCatIds.Contains(p.CategoryId)).OrderBy(p=>p.CategoryId).ThenBy(p=>p.ID))
+        {
+            <div class="col-6 col-md-4 col-xl-3">
+                <div class="product-card h-100 d-flex flex-column">
+                    <img src="@product.ImgUrl" alt="@product.Name" class="product-img w-100" />
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <span class="cat-label mb-1">@product.Category?.Name</span>
+                        <h6 class="fw-semibold text-uppercase mb-1" style="letter-spacing:.06em">@product.Name</h6>
+                        <p class="text-muted small flex-grow-1 mb-2">@product.Description</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto gap-1">
+                            <span class="price">$@product.Price</span>
+                            @if (User?.Identity?.IsAuthenticated == true)
+                            {
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                                    <input type="hidden" name="productId" value="@product.ID" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-sm btn-outline-dark rounded-0 add-to-cart-btn">Add</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Sculptures / Carvings Group -->
+    <span id="sculptures" class="anchor-spacer"></span>
+    <div class="mini-divider"></div>
+    <div class="category-section-title">Sculptures / Carvings</div>
+    <div class="row g-4">
+        @{ var sculptureCatIds = new[]{6,7,8,9,10}; }
+        @foreach (var product in Db.Products.Where(p=> sculptureCatIds.Contains(p.CategoryId)).OrderBy(p=>p.CategoryId).ThenBy(p=>p.ID))
+        {
+            <div class="col-6 col-md-4 col-xl-3">
+                <div class="product-card h-100 d-flex flex-column">
+                    <img src="@product.ImgUrl" alt="@product.Name" class="product-img w-100" />
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <span class="cat-label mb-1">@product.Category?.Name</span>
+                        <h6 class="fw-semibold text-uppercase mb-1" style="letter-spacing:.06em">@product.Name</h6>
+                        <p class="text-muted small flex-grow-1 mb-2">@product.Description</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto gap-1">
+                            <span class="price">$@product.Price</span>
+                            @if (User?.Identity?.IsAuthenticated == true)
+                            {
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                                    <input type="hidden" name="USerId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+                                    <input type="hidden" name="cartId" value="0" />
+                                    <input type="hidden" name="productId" value="@product.ID" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-sm btn-outline-dark rounded-0 add-to-cart-btn">Add</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

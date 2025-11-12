@@ -4,39 +4,48 @@
     ViewData["Title"] = "Login";
 }
 
-<h1>Login</h1>
+<style>
+    .auth-wrapper { min-height:70vh; display:flex; align-items:center; justify-content:center; }
+    .auth-card { max-width:380px; width:100%; background:#fff; border:1px solid #dedede; padding:2.25rem 2rem; position:relative; }
+    .auth-card h1 { font-size:1rem; text-transform:uppercase; letter-spacing:.18em; font-weight:600; margin-bottom:1.5rem; }
+    .auth-card label { font-size:.65rem; text-transform:uppercase; letter-spacing:.12em; color:#555; font-weight:600; }
+    .auth-card .form-control { border-radius:0; font-size:.85rem; }
+    .auth-card .form-control:focus { box-shadow:none; border-color:#111; }
+    .auth-card .btn-auth { text-transform:uppercase; letter-spacing:.15em; font-size:.7rem; font-weight:600; border-radius:0; }
+    .auth-alt { text-align:center; margin-top:1.25rem; font-size:.7rem; letter-spacing:.08em; }
+    .auth-alt a { text-decoration:none; }
+    .brand-mark { position:absolute; top:-12px; left:1rem; background:#111; color:#fff; padding:.35rem .6rem; font-size:.55rem; letter-spacing:.15em; }
+    .validation-summary-errors ul { list-style:none; padding-left:0; margin:0; }
+</style>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Login">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+<div class="auth-wrapper">
+    <div class="auth-card shadow-sm">
+        <span class="brand-mark">VALORA</span>
+        <h1>Login</h1>
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" autocomplete="username" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" type="password" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="RememberMe" /> @Html.DisplayNameFor(model => model.RememberMe)
-                </label>
+            <div class="form-check mb-3">
+                <input class="form-check-input" asp-for="RememberMe" id="rememberMeChk" />
+                <label class="form-check-label" for="rememberMeChk" style="font-size:.65rem; letter-spacing:.08em;">@Html.DisplayNameFor(model => model.RememberMe)</label>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="d-grid">
+                <button type="submit" class="btn btn-dark btn-auth py-2">Sign In</button>
             </div>
         </form>
+        <div class="auth-alt">
+            <span class="text-muted">Don't have an account?</span> <a asp-action="Register" class="fw-semibold">Register</a>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Register">Register</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@section Scripts { @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} }

@@ -1,0 +1,92 @@
+@model Valora.ViewModels.UpdateOrderStatusViewModel
+@{
+    ViewData["Title"] = "Update Order Status";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Update Order Status
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="UpdateStatus" method="post">
+                        <input type="hidden" asp-for="OrderId" />
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Order Number:</strong></label>
+                            <p class="form-control-plaintext">#@Model.OrderId</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="OrderStatus" class="form-label">
+                                <i class="bi bi-flag me-1"></i>Order Status *
+                            </label>
+                            <select asp-for="OrderStatus" class="form-select">
+                                <option value="Pending">Pending</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <span asp-validation-for="OrderStatus" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ShippedDate" class="form-label">
+                                    <i class="bi bi-truck me-1"></i>Shipped Date
+                                </label>
+                                <input asp-for="ShippedDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="ShippedDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DeliveredDate" class="form-label">
+                                    <i class="bi bi-check-circle me-1"></i>Delivered Date
+                                </label>
+                                <input asp-for="DeliveredDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="DeliveredDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">
+                                <i class="bi bi-sticky me-1"></i>Additional Notes
+                            </label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Add any notes about this status update..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="ManageOrders" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-circle me-2"></i>Update Status
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+}

@@ -11,10 +11,10 @@ namespace Valora.Repositories
         {
         }
 
-        public   async Task AddToCart(string UserID, int cartId, int productId, int quantity)
+        public async Task<int> AddToCart(string UserID, int cartId, int productId, int quantity)
         {
 
-            var cart =  await GetById(cartId);
+            var cart = await GetById(cartId);
             if (cart == null)
             {
                 cart = new Cart
@@ -23,7 +23,10 @@ namespace Valora.Repositories
                     CartItems = new List<CartItem>()
                 };
                 await Add(cart);
+                // Persist immediately to generate a real ID so we can add items safely
+                await SaveChanges();
             }
+            cart.CartItems ??= new List<CartItem>();
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
             {
@@ -39,21 +42,22 @@ namespace Valora.Repositories
                 };
                 cart.CartItems.Add(newItem);
             }
-         Update(cart);
-
-
+            // Attach changes (works for both new and existing carts/items)
+            Update(cart);
+            // Return the actual cart ID so callers can use it (e.g., redirect to ShowTheCart)
+            return cart.ID;
         }
 
         public async Task<CartDTO> ShowTheCart(int cartId)
         {
-            var cart =  await GetById(cartId);
+            var cart = await GetById(cartId);
             if (cart != null)
             {
                 var cartDTO = new CartDTO
                 {
                     UserId = cart.UserID,
                     CartId = cart.ID,
-                    Items = cart.CartItems.Select(item => new CartItemDTO
+                    Items = (cart.CartItems ?? Enumerable.Empty<CartItem>()).Select(item => new CartItemDTO
                     {
                         ProductId = item.ProductID,
                         Quantity = item.Quantity
@@ -69,9 +73,10 @@ namespace Valora.Repositories
         }
         public async Task RemoveFromCart(int cartId, int productId, int quantity)
         {
-            var cart =  await GetById(cartId);
+            var cart = await GetById(cartId);
             if (cart != null)
             {
+                cart.CartItems ??= new List<CartItem>();
                 var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
                 if (existingItem != null)
                 {
@@ -84,30 +89,39 @@ namespace Valora.Repositories
                 }
             }
         }
-        public override async Task<Cart> GetById(int id)
+        public override async Task<Cart?> GetById(int id)
         {
-           return await Query().FirstOrDefaultAsync(c => c.ID == id);
-
-         }
+            return await Query().Include(c => c.CartItems).FirstOrDefaultAsync(c => c.ID == id && !c.IsDeleted);
+        }
 
 
 
         public async Task saveTheCart()
         {
-          await  SaveChanges();
+            await SaveChanges();
         }
 
         public async Task<Cart> GetCartByUserId(string userId)
         {
-            var cart = await Query().
-                    FirstOrDefaultAsync(c => c.UserID == userId);
-            return cart;
+            var cart = await Query()
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.UserID == userId && !c.IsDeleted);
+            if (cart != null)
+            {
+                return cart;
+            }
+            // If no cart exists for this user, create and persist one so all callers observe the same cart
+            var newCart = new Cart
+            {
+                UserID = userId,
+                CartItems = new List<CartItem>()
+            };
+            await Add(newCart);
+            await SaveChanges();
+            return newCart;
         }
 
-         
+
     }
-
-
-
-
+    
     }

@@ -1,8 +1,127 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Discover Art";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .split-hero { min-height: 70vh; display: flex; flex-wrap: wrap; }
+    .split-half { flex: 1 1 50%; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem; transition: background-color .3s ease, color .3s ease, filter .3s ease; filter: grayscale(100%); }
+    .split-half-left { background: #111; color: #eee; background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3'); background-size:cover; background-position:center; }
+    .split-half-right { background: #f8f9fa; color: #222; background-image:url('https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3'); background-size:cover; background-position:center; }
+    .split-half:hover { filter: grayscale(0); }
+    .split-content h2 { font-size: clamp(2.5rem,5vw,4rem); letter-spacing: .05em; font-weight: 600; }
+    .split-content .cta { margin-top: 1.5rem; }
+    /* Fix: use background-color so we don't wipe out background-image on hover */
+    .split-half-left:hover { background-color:#000; }
+    .split-half-right:hover { background-color:#e2e2e2; }
+    @@media (max-width: 992px){ .split-half { flex: 1 1 100%; min-height: 40vh; } }
+    .lead { color:#6c757d; }
+    .btn-outline-dark { border-color:#212529; color:#212529; }
+    .btn-outline-dark:hover { background:#212529; color:#fff; }
+    .btn-outline-light { border-color:#f8f9fa; color:#f8f9fa; }
+    .btn-outline-light:hover { background:#f8f9fa; color:#000; }
+    .border { border-color:#dee2e6 !important; }
+    .bg-light { background:#f5f5f5 !important; }
+    .text-uppercase { letter-spacing:.08em; }
+    /* Product card grayscale -> color hover */
+    .product-card .product-thumb img { filter:grayscale(100%); transition:filter .4s ease; }
+    .product-card:hover .product-thumb img { filter:grayscale(0); }
+</style>
+
+@inject Valora.Data.Context Db
+<div class="container-fluid px-0">
+    <div class="split-hero">
+        <a class="text-decoration-none split-half split-half-left" href="@Url.Action("Index","Category")#sculptures" aria-label="Browse Sculptures">
+            <div class="split-content text-center">
+                <h2 class="text-uppercase">Sculptures</h2>
+                <p class="lead mb-0">Stone • Metal • Wood • Clay • Miniatures</p>
+                <div class="cta">
+                    <span class="btn btn-outline-light btn-lg rounded-0 fw-semibold">Explore Sculptures →</span>
+                </div>
+            </div>
+        </a>
+        <a class="text-decoration-none split-half split-half-right" href="@Url.Action("Index","Category")#paintings" aria-label="Browse Paintings & Drawings">
+            <div class="split-content text-center">
+                <h2 class="text-uppercase">Paintings</h2>
+                <p class="lead mb-0">Oil • Acrylic • Watercolor • Sketch • Digital</p>
+                <div class="cta">
+                    <span class="btn btn-outline-dark btn-lg rounded-0 fw-semibold">Explore Paintings →</span>
+                </div>
+            </div>
+        </a>
+    </div>
 </div>
+
+<section class="container py-5">
+    <div class="row g-4 text-center">
+        <div class="col-12">
+            <h3 class="fw-light text-uppercase">Curated Monochrome Art</h3>
+            <p class="text-muted">Minimalist grayscale theme highlighting form & texture.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="border p-4 h-100 d-flex flex-column justify-content-center bg-light">
+                <h5 class="text-uppercase">Authentic Works</h5>
+                <p class="small text-muted mb-0">Each piece is uniquely crafted by independent artists.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border p-4 h-100 d-flex flex-column justify-content-center">
+                <h5 class="text-uppercase">Modern Aesthetic</h5>
+                <p class="small text-muted mb-0">Clean presentation focusing on material and composition.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border p-4 h-100 d-flex flex-column justify-content-center bg-light">
+                <h5 class="text-uppercase">Collector Friendly</h5>
+                <p class="small text-muted mb-0">Wide range from miniatures to large statement pieces.</p>
+            </div>
+        </div>
+    </div>
+    <hr class="my-5" />
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h4 class="text-uppercase fw-semibold" style="letter-spacing:.12em">Featured Products</h4>
+            <p class="text-muted small">Recently added works across categories</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        @foreach (var p in Db.Products.OrderByDescending(p=>p.ID).Take(8))
+        {
+            <div class="col-6 col-md-3">
+                <div class="product-card border h-100 d-flex flex-column">
+                    <div class="product-thumb" style="height:140px;overflow:hidden;">
+                        <img src="@p.ImgUrl" alt="@p.Name" class="product-img w-100 h-100" style="object-fit:cover;" />
+                    </div>
+                    <div class="p-2 d-flex flex-column flex-grow-1">
+                        <span class="small text-muted text-uppercase" style="letter-spacing:.08em">@p.Category?.Name</span>
+                        <strong class="mt-1" style="font-size:.85rem;letter-spacing:.05em;" >@p.Name</strong>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="fw-semibold" style="font-size:.8rem;">$@p.Price</span>
+                            @if (User?.Identity?.IsAuthenticated == true)
+                            {
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                                    <input type="hidden" name="productId" value="@p.ID" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-sm btn-outline-dark rounded-0" style="font-size:.65rem;letter-spacing:.08em;">Add</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-4 text-center">
+            <h6 class="text-uppercase mb-1">Total Categories</h6>
+            <p class="display-6 fw-light mb-0">@Db.Categories.Count()</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <h6 class="text-uppercase mb-1">Total Products</h6>
+            <p class="display-6 fw-light mb-0">@Db.Products.Count()</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <h6 class="text-uppercase mb-1">Latest Added</h6>
+            <p class="fw-light mb-0">@Db.Products.OrderByDescending(p=>p.ID).FirstOrDefault()?.Name</p>
+        </div>
+    </div>
+</section>

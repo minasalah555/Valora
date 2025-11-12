@@ -4,48 +4,70 @@
     ViewData["Title"] = "ShowTheCart";
 }
 
-<h1>ShowTheCart</h1>
+<style>
+    .cart-table th { text-transform:uppercase; font-size:.7rem; letter-spacing:.12em; }
+    .cart-table td { vertical-align:middle; font-size:.8rem; }
+    .cart-summary { background:#f8f9fa; border:1px solid #e1e1e1; padding:1rem; }
+    .qty-input { width:70px; }
+    .remove-btn { font-size:.65rem; letter-spacing:.08em; }
+</style>
 
-<div>
-    <h4>CartDTO</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            <label asp-for="CartId"></label>
-        </dt>
-        <dd class="col-sm-10">
-            <span asp-for="CartId"></span>
-        </dd>
-
-        <dt class="col-sm-2">
-            <label asp-for="UserId"></label>
-        </dt>
-        <dd class="col-sm-10">
-            <span asp-for="UserId"></span>
-        </dd>
-        <dt class="col-sm-2">
-            <label asp-for="Items"></label>
-
-        </dt>
-
-        @foreach (var item in Model.Items)
-        {
-            <tr>
-                <td>
-                    <span asp-for="@item.ProductId"></span>
-                </td>
-                <td>
-                    <span asp-for="@item.Quantity"></span>
-                </td>
-            </tr>
-        }
-
-
-
-    </dl>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h5 text-uppercase" style="letter-spacing:.15em">Your Cart</h1>
+    <span class="text-muted small">Cart #: @Model.CartId</span>
 </div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.CartId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+@if (Model.Items == null || !Model.Items.Any())
+{
+    <div class="alert alert-secondary rounded-0">Cart is empty.</div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-md-8">
+            <table class="table cart-table table-sm">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th style="width:120px;">Quantity</th>
+                        <th style="width:70px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>#@item.ProductId</td>
+                        <td>
+                            @item.Quantity
+                        </td>
+                        <td>
+                                <form asp-action="RemoveItem" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="cartId" value="@Model.CartId" />
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-0 remove-btn">Remove</button>
+                                </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <div class="cart-summary">
+                <h6 class="text-uppercase mb-3" style="letter-spacing:.1em">Summary</h6>
+                <p class="mb-1 small">Items: <strong>@Model.Items.Sum(i=>i.Quantity)</strong></p>
+                <p class="text-muted small">Prices not implemented yet.</p>
+                    <div class="d-grid gap-2 mt-3">
+                        <!-- Pass the current cart id to the Order/Create route so OrderService receives a valid CartId -->
+                        <a asp-controller="Order" asp-action="Create" asp-route-cartId="@Model.CartId" class="btn btn-dark btn-sm rounded-0">Checkout</a>
+                        <form asp-action="DeleteCart" method="post">
+                            <input type="hidden" name="cartId" value="@Model.CartId" />
+                            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-0">Clear Cart</button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+}

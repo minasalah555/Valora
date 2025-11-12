@@ -14,11 +14,15 @@ namespace Valora.Services
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
         }
-        public async Task addToCart( string UserID,int cartId, int productId, int quantity)
-        {
-              await  _cartRepository.AddToCart(UserID, cartId, productId, quantity);
+      public async Task<int> addToCart( string UserID,int cartId, int productId, int quantity)
+      {
+          // repository now returns the actual cart id (new or existing)
+          var resultingCartId = await  _cartRepository.AddToCart(UserID, cartId, productId, quantity);
+          // persist any pending changes
+          await _cartRepository.SaveChanges();
+          return resultingCartId;
 
-        }
+      }
 
         public async Task deleteFromCart(int cartId) { 
         await    _cartRepository.Delete(cartId);
@@ -29,6 +33,21 @@ namespace Valora.Services
         {
          return await _cartRepository.ShowTheCart(cartId);
          }
+
+        public async Task RemoveItemFromCart(int cartId, int productId)
+        {
+            // Load cart, remove matching item entirely and persist
+            var cart = await _cartRepository.GetById(cartId);
+            if (cart == null) return;
+            cart.CartItems ??= new List<CartItem>();
+            var existing = cart.CartItems.FirstOrDefault(ci => ci.ProductID == productId);
+            if (existing != null)
+            {
+                cart.CartItems.Remove(existing);
+                _cartRepository.Update(cart);
+                await _cartRepository.SaveChanges();
+            }
+        }
 
         public async Task Add(Cart cart)
         {
@@ -51,12 +70,23 @@ namespace Valora.Services
 
         public async Task<CartDTO> showTheCartPerUser(string UserID)
         {
+            Cart cart =  await _cartRepository.GetCartByUserId(UserID);
+            return new CartDTO
+            {
+                CartId = cart.ID,
+                UserId = cart.UserID,
+                Items = (cart.CartItems ?? new List<CartItem>()).Select(ci => new CartItemDTO
+                {
+                    ProductId = ci.ProductID,
+                    Quantity = ci.Quantity
+                }).ToList()
+            };
+        }
 
-            Cart cartDTO =  await _cartRepository.GetCartByUserId(UserID);
-            return new CartDTO();
-
-            //Cart cart = await _cartRepository.GetCartByUserId(UserID);
-            //cart.CartItems= await _cartItemRepository.GetAll();
+        public async Task<int> GetCartItemCountForUser(string userId)
+        {
+            var cart = await _cartRepository.GetCartByUserId(userId);
+            return (cart.CartItems ?? new List<CartItem>()).Sum(ci => ci.Quantity);
         }
     }
 }

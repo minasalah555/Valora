@@ -29,3 +29,21 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Monochrome order & product theme additions */
+.hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
+.hover-lift:hover { transform: translateY(-4px); box-shadow:0 6px 18px rgba(0,0,0,.08); }
+.text-gradient { background:linear-gradient(90deg,#000,#555); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.status-delivered { background:#198754; color:#fff; }
+.status-cancelled { background:#dc3545; color:#fff; }
+.status-shipped { background:#0dcaf0; color:#000; }
+.status-processing { background:#ffc107; color:#000; }
+.status-pending { background:#6c757d; color:#fff; }
+
+/* Product grayscale hover (utility) */
+.product-img { filter:grayscale(100%); transition:filter .4s ease; display:block; }
+.product-img:hover, .product-card:hover .product-img { filter:grayscale(0); }
+
+/* Minimal buttons */
+.btn-outline-dark { border-radius:0; }
+.btn-dark { border-radius:0; }
