@@ -12,8 +12,8 @@ using Valora.Data;
 namespace Valora.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20251111231832_AddMoreSeedProducts")]
-    partial class AddMoreSeedProducts
+    [Migration("20251112022646_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

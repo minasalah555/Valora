@@ -75,7 +75,7 @@ namespace Valora.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCart(int cartId)
         {

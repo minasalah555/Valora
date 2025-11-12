@@ -81,7 +81,7 @@ namespace Valora.Repositories
             {
                 CartId = cart.ID,
                 UserId = cart.UserID,
-                Items = cart.CartItems.Select(item => new CartItemDTO
+                Items = (cart.CartItems ?? Enumerable.Empty<CartItem>()).Select(item => new CartItemDTO
                 {
                     ProductId = item.ProductID,
                     Quantity = item.Quantity
@@ -90,22 +90,21 @@ namespace Valora.Repositories
         }
 
 
-        public async Task RemoveFromCart(string userID, int productId)
+        public async Task RemoveFromCart(int cartId, int productId, int quantity)
         {
             var cart = await GetById(cartId);
-            if (cart != null)
+            if (cart == null) return;
+            cart.CartItems ??= new List<CartItem>();
+            var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
+            if (existingItem != null)
             {
-                cart.CartItems ??= new List<CartItem>();
-                var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
-                if (existingItem != null)
+                existingItem.Quantity -= quantity;
+                if (existingItem.Quantity <= 0)
                 {
-                    existingItem.Quantity -= 1;
-                    if (existingItem.Quantity <= 0)
-                    {
-                        cart.CartItems.Remove(existingItem);
-                    }
-                    Update(cart);
+                    cart.CartItems.Remove(existingItem);
                 }
+                Update(cart);
+                await SaveChanges();
             }
         }
         public override async Task<Cart?> GetById(int id)
