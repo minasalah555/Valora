@@ -1,7 +1,7 @@
 ﻿@model Valora.DTOs.CartDTO
 
 @{
-    ViewData["Title"] = "ShowTheCart";
+    ViewData["Title"] = "Your Cart";
 }
 
 <style>
@@ -17,9 +17,27 @@
     <span class="text-muted small">Cart #: @Model.CartId</span>
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 @if (Model.Items == null || !Model.Items.Any())
 {
-    <div class="alert alert-secondary rounded-0">Cart is empty.</div>
+    <div class="alert alert-secondary rounded-0">
+        Cart is empty. 
+        <a asp-controller="Category" asp-action="Index" class="alert-link">Browse products</a>
+    </div>
 }
 else
 {
@@ -42,12 +60,12 @@ else
                             @item.Quantity
                         </td>
                         <td>
-                                <form asp-action="RemoveItem" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="cartId" value="@Model.CartId" />
-                                    <input type="hidden" name="productId" value="@item.ProductId" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-0 remove-btn">Remove</button>
-                                </form>
+                            <form asp-action="RemoveItem" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="cartId" value="@Model.CartId" />
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-0 remove-btn">Remove</button>
+                            </form>
                         </td>
                     </tr>
                 }
@@ -59,14 +77,15 @@ else
                 <h6 class="text-uppercase mb-3" style="letter-spacing:.1em">Summary</h6>
                 <p class="mb-1 small">Items: <strong>@Model.Items.Sum(i=>i.Quantity)</strong></p>
                 <p class="text-muted small">Prices not implemented yet.</p>
-                    <div class="d-grid gap-2 mt-3">
-                        <!-- Pass the current cart id to the Order/Create route so OrderService receives a valid CartId -->
-                        <a asp-controller="Order" asp-action="Create" asp-route-cartId="@Model.CartId" class="btn btn-dark btn-sm rounded-0">Checkout</a>
-                        <form asp-action="DeleteCart" method="post">
-                            <input type="hidden" name="cartId" value="@Model.CartId" />
-                            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-0">Clear Cart</button>
-                        </form>
-                    </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a asp-controller="Order" asp-action="Create" asp-route-cartId="@Model.CartId" class="btn btn-dark rounded-0 text-uppercase">Checkout</a>
+                    <a asp-controller="Category" asp-action="Index" class="btn btn-outline-secondary rounded-0 text-uppercase">Continue Shopping</a>
+                    <form asp-action="DeleteCart" method="post" class="mt-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="cartId" value="@Model.CartId" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-0 text-uppercase" onclick="return confirm('Clear all items?')">Clear Cart</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

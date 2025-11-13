@@ -1,13 +1,29 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Valora.Data;
 
 namespace Valora.Controllers
 {
     public class CategoryController : Controller
     {
-        // GET: CategoryController
-        public ActionResult Index()
+        private readonly Context _context;
+
+        public CategoryController(Context context)
         {
+            _context = context;
+        }
+
+        // GET: Category/Index or Category/Index?categoryId=1
+        public ActionResult Index(int? categoryId)
+        {
+            // If no categoryId provided, default to first category
+            if (!categoryId.HasValue || categoryId.Value <= 0)
+            {
+                var firstCategory = _context.Categories.OrderBy(c => c.ID).FirstOrDefault();
+                categoryId = firstCategory?.ID ?? 1;
+            }
+
+            ViewBag.SelectedCategoryId = categoryId.Value;
             return View();
         }
 

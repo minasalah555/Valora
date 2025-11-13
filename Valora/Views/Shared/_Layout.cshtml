@@ -11,33 +11,131 @@
     @inject Valora.Data.Context Db
     <style>
         :root { --v-bg:#fff; --v-fg:#111; --v-muted:#6c757d; --v-border:#d9d9d9; --v-accent:#111; --v-accent-soft:#f2f2f2; }
-        body { background:var(--v-bg); color:var(--v-fg); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
-        .navbar { border-bottom:1px solid var(--v-border)!important; background:#fff!important; }
+        body { 
+            background:var(--v-bg); 
+            color:var(--v-fg); 
+            font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+            padding-top: 0 !important;
+        }
+        
+        /* Fixed Header with Smooth Transitions */
+        header {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            width: 100%;
+            background: #fff;
+            transform: translateY(0);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+        
+        /* Hidden state when scrolling down */
+        header.header-hidden {
+            transform: translateY(-100%);
+        }
+        
+        /* Visible state when scrolling up */
+        header.header-visible {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Add padding to body to compensate for fixed header */
+        body {
+            padding-top: 70px;
+        }
+        
+        .navbar {
+            position: relative !important;
+            border-bottom:1px solid var(--v-border)!important;
+            background:#fff!important;
+            margin-bottom: 0 !important;
+        }
+        
         .navbar-nav { align-items:center; }
         .navbar .nav-link, .navbar-brand { letter-spacing:.08em; font-size:.8rem; text-transform:uppercase; font-weight:600; }
         .navbar .nav-link { position:relative; padding:.75rem .95rem; }
         .navbar .nav-link:after { content:""; position:absolute; left:50%; bottom:.4rem; width:0; height:2px; background:var(--v-accent); transition:width .3s ease, left .3s ease; }
         .navbar .nav-link:hover:after, .navbar .nav-link.active:after { width:60%; left:20%; }
+        
+        /* Category Dropdown with Hover */
+        .category-dropdown-nav {
+            position: relative;
+        }
+        
+        .category-dropdown-menu-nav {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #d1d1d1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1031;
+            margin-top: 0.5rem;
+        }
+        
+        .category-dropdown-nav:hover .category-dropdown-menu-nav {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .category-dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        
+        .category-dropdown-item:hover {
+            background: #f8f9fa;
+            padding-left: 2rem;
+            color: #111;
+        }
+        
+        .category-dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        main {
+            padding-top: 1rem !important;
+        }
+        
         .dropdown-menu { border-radius:0; font-size:.8rem; letter-spacing:.05em; }
         .dropdown-item { padding:.45rem .9rem; }
         .dropdown-item:hover { background:var(--v-accent-soft); }
-    .cart-link { display:flex; align-items:center; gap:.35rem; position:relative; font-weight:600; }
-    .cart-link .cart-badge { position:absolute; top:-6px; right:-10px; background:var(--v-accent); color:#fff; border-radius:50%; min-width:20px; height:20px; padding:0 .25rem; display:flex; align-items:center; justify-content:center; font-size:.6rem; letter-spacing:.05em; }
-    .cart-link svg { width:20px; height:20px; stroke-width:1.4; }
+        .cart-link { display:flex; align-items:center; gap:.35rem; position:relative; font-weight:600; }
+        .cart-link .cart-badge { position:absolute; top:-6px; right:-10px; background:var(--v-accent); color:#fff; border-radius:50%; min-width:20px; height:20px; padding:0 .25rem; display:flex; align-items:center; justify-content:center; font-size:.6rem; letter-spacing:.05em; }
+        .cart-link svg { width:20px; height:20px; stroke-width:1.4; }
         .cart-link:hover { opacity:.85; }
-        /* Right-side hamburger dropdown */
         .hamburger { display:inline-block; width:20px; height:16px; position:relative; }
         .hamburger span { display:block; height:2px; background:var(--v-fg); margin:3px 0; border-radius:2px; transition:all .2s ease; }
         .nav-hamburger-btn { border:0; background:transparent; padding:.25rem .5rem; }
         .dropdown-menu-end { right:0; left:auto; }
-        footer { background:#f8f9fa; border-top:1px solid var(--v-border); }
+        footer { background:#f8f9fa; border-top:1px solid var(--v-border); margin-top: 3rem; }
         a { color:inherit; text-decoration:none; }
         a:hover { color:inherit; opacity:.75; }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom mb-3">
+    <header id="main-header">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Valora</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -49,17 +147,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-dark dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">Categories</a>
-                            <ul class="dropdown-menu shadow-sm">
-                                @foreach (var c in Db.Categories.OrderBy(c=>c.Name))
+                        <li class="nav-item category-dropdown-nav">
+                            <a class="nav-link text-dark" href="#" role="button">Browse Categories</a>
+                            <div class="category-dropdown-menu-nav">
+                                @foreach (var category in Db.Categories.OrderBy(c => c.ID))
                                 {
-                                    var anchor = c.Name?.Replace(" ", "-");
-                                    <li>
-                                        <a class="dropdown-item" href="@($"{Url.Action("Index","Category")}#{anchor}")">@c.Name</a>
-                                    </li>
+                                    <a href="@Url.Action("Index", "Category", new { categoryId = category.ID })" 
+                                       class="category-dropdown-item">
+                                        @category.Name
+                                    </a>
                                 }
-                            </ul>
+                            </div>
                         </li>
                       
                         @if (User?.Identity?.IsAuthenticated == true)
@@ -70,7 +168,6 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="SignOut">LogOut</a>
                             </li>
-                            @* Show admin dashboard link only to users in Admin role *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
@@ -84,12 +181,8 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
-
-                       
-                       
                     </ul>
                     <div class="d-flex align-items-center gap-2">
-                        @* Cart icon moved to the right so it's next to the hamburger menu *@
                         @if (User?.Identity?.IsAuthenticated == true)
                         {
                             <a class="nav-link text-dark cart-link me-1" asp-area="" asp-controller="Cart" asp-action="UserCart" aria-label="View Cart">
@@ -153,10 +246,137 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
+        // ========================================
+        // SMART NAVBAR: Hide on Scroll Down, Show on Scroll Up
+        // Pure JavaScript - No Dependencies
+        // ========================================
+        
+        (function() {
+            'use strict';
+            
+            // Get the header element
+            const header = document.getElementById('main-header');
+            
+            // Configuration
+            const SCROLL_THRESHOLD = 50; // Minimum scroll distance to trigger hide/show (in pixels)
+            const DEBOUNCE_DELAY = 10;   // Delay for scroll event handling (in milliseconds)
+            
+            // State variables
+            let lastScrollPosition = 0;
+            let isHeaderVisible = true;
+            let ticking = false;
+            
+            /**
+             * Handles the scroll behavior
+             * Compares current scroll position with previous position
+             * to determine scroll direction
+             */
+            function handleScroll() {
+                const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // Prevent negative scroll values (rubber band effect on iOS)
+                if (currentScrollPosition < 0) {
+                    return;
+                }
+                
+                // Calculate scroll direction
+                const isScrollingDown = currentScrollPosition > lastScrollPosition;
+                const scrollDifference = Math.abs(currentScrollPosition - lastScrollPosition);
+                
+                // Only trigger animation if scroll difference exceeds threshold
+                if (scrollDifference < SCROLL_THRESHOLD) {
+                    lastScrollPosition = currentScrollPosition;
+                    return;
+                }
+                
+                // If near the top of the page, always show header
+                if (currentScrollPosition < 100) {
+                    showHeader();
+                    lastScrollPosition = currentScrollPosition;
+                    return;
+                }
+                
+                // Hide header when scrolling down
+                if (isScrollingDown && isHeaderVisible) {
+                    hideHeader();
+                }
+                // Show header when scrolling up
+                else if (!isScrollingDown && !isHeaderVisible) {
+                    showHeader();
+                }
+                
+                // Update last scroll position
+                lastScrollPosition = currentScrollPosition;
+            }
+            
+            /**
+             * Hides the header by adding the 'header-hidden' class
+             */
+            function hideHeader() {
+                header.classList.remove('header-visible');
+                header.classList.add('header-hidden');
+                isHeaderVisible = false;
+            }
+            
+            /**
+             * Shows the header by adding the 'header-visible' class
+             */
+            function showHeader() {
+                header.classList.remove('header-hidden');
+                header.classList.add('header-visible');
+                isHeaderVisible = true;
+            }
+            
+            /**
+             * Request animation frame callback
+             * Ensures smooth performance by syncing with browser repaint
+             */
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        handleScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }
+            
+            /**
+             * Initialize the scroll listener
+             * Uses passive event listener for better scroll performance
+             */
+            function init() {
+                // Set initial state
+                header.classList.add('header-visible');
+                
+                // Add scroll event listener with passive flag for better performance
+                // Passive means we won't call preventDefault(), allowing browser optimization
+                window.addEventListener('scroll', requestTick, { passive: true });
+                
+                // Optional: Handle window resize to recalculate if needed
+                window.addEventListener('resize', function() {
+                    lastScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                }, { passive: true });
+            }
+            
+            // Initialize when DOM is fully loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                // DOM is already loaded
+                init();
+            }
+            
+        })();
+        
+        // ========================================
+        // Cart Badge Update
+        // ========================================
         document.addEventListener('DOMContentLoaded', () => {
             const badge = document.getElementById('cartBadge');
-            if (!badge) return; // user not authenticated
+            if (!badge) return;
             fetch('@Url.Action("CartCount","Cart")')
                 .then(r => r.json())
                 .then(d => { badge.textContent = d.count; })

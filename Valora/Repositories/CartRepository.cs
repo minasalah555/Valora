@@ -15,8 +15,27 @@ namespace Valora.Repositories
 
         public async Task<int> AddToCart(string UserID, int cartId, int productId, int quantity)
         {
+            Cart? cart = null;
 
-            var cart = await GetById(cartId);
+            // If cartId is provided and greater than 0, try to get existing cart with tracking
+            if (cartId > 0)
+            {
+                cart = await Query()
+                    .Include(c => c.CartItems)
+                    .AsTracking()
+                    .FirstOrDefaultAsync(c => c.ID == cartId && !c.IsDeleted);
+            }
+
+            // If cart not found by ID, try to find by UserID
+            if (cart == null)
+            {
+                cart = await Query()
+                    .Include(c => c.CartItems)
+                    .AsTracking()
+                    .FirstOrDefaultAsync(c => c.UserID == UserID && !c.IsDeleted);
+            }
+
+            // If still no cart, create a new one
             if (cart == null)
             {
                 cart = new Cart
@@ -27,16 +46,27 @@ namespace Valora.Repositories
                 await Add(cart);
                 // Persist immediately to generate a real ID so we can add items safely
                 await SaveChanges();
+                
+                // Re-query the cart with tracking to ensure it's properly attached
+                cart = await Query()
+                    .Include(c => c.CartItems)
+                    .AsTracking()
+                    .FirstOrDefaultAsync(c => c.ID == cart.ID);
             }
+
+            // Ensure CartItems is initialized
             cart.CartItems ??= new List<CartItem>();
+
+            // Check if product already exists in cart
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
             {
-                // Respect the requested quantity when adding to an existing item
+                // Update quantity of existing item
                 existingItem.Quantity += quantity;
             }
             else
             {
+                // Add new item to cart
                 var newItem = new CartItem
                 {
                     ProductID = productId,
@@ -45,9 +75,11 @@ namespace Valora.Repositories
                 };
                 cart.CartItems.Add(newItem);
             }
-            // Attach changes (works for both new and existing carts/items)
-            Update(cart);
-            // Return the actual cart ID so callers can use it (e.g., redirect to ShowTheCart)
+
+            // Save changes - THIS IS THE KEY FIX!
+            await SaveChanges();
+
+            // Return the cart ID
             return cart.ID;
         }
 
@@ -71,9 +103,9 @@ namespace Valora.Repositories
             else
             {
                 return new CartDTO();
-
             }
         }
+
         public async Task<CartDTO> ShowTheCartByUserId(string userId)
         {
             var cart = await GetCartByUserId(userId);
@@ -90,17 +122,15 @@ namespace Valora.Repositories
             };
         }
 
-
         public async Task RemoveFromCart(int cartId, int productId, int quantity)
         {
             // Load the cart including CartItems with tracking so EF Core detects removals/changes
-            // to the CartItems collection. Base GetByIDWithTracking doesn't include navigation
-            // properties, so query explicitly with Include(...).AsTracking().
             var cart = await Query()
                 .Include(c => c.CartItems)
                 .AsTracking()
                 .FirstOrDefaultAsync(c => c.ID == cartId && !c.IsDeleted);
             if (cart == null) return;
+            
             cart.CartItems ??= new List<CartItem>();
             var existingItem = cart.CartItems.FirstOrDefault(item => item.ProductID == productId);
             if (existingItem != null)
@@ -110,16 +140,16 @@ namespace Valora.Repositories
                 {
                     cart.CartItems.Remove(existingItem);
                 }
-                Update(cart);
                 await SaveChanges();
             }
         }
+
         public override async Task<Cart?> GetById(int id)
         {
-            return await Query().Include(c => c.CartItems).FirstOrDefaultAsync(c => c.ID == id && !c.IsDeleted);
+            return await Query()
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.ID == id && !c.IsDeleted);
         }
-
-
 
         public async Task saveTheCart()
         {
@@ -135,7 +165,7 @@ namespace Valora.Repositories
             {
                 return cart;
             }
-            // If no cart exists for this user, create and persist one so all callers observe the same cart
+            // If no cart exists for this user, create and persist one
             var newCart = new Cart
             {
                 UserID = userId,
@@ -145,8 +175,5 @@ namespace Valora.Repositories
             await SaveChanges();
             return newCart;
         }
-
-
     }
-    
-    }
+}
