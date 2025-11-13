@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<style>
+    .form-wrapper { min-height:60vh; display:flex; align-items:flex-start; justify-content:center; padding-top:3rem; }
+    .form-card { width:100%; max-width:520px; background:#fff; border:1px solid #dedede; padding:2rem; }
+    .form-card h1 { font-size:1rem; text-transform:uppercase; letter-spacing:.18em; font-weight:600; margin-bottom:1.25rem; }
+    .form-card label { font-size:.65rem; text-transform:uppercase; letter-spacing:.12em; color:#555; font-weight:600; }
+    .form-card .form-control { border-radius:0; font-size:.9rem; }
+    .form-card .form-control:focus { box-shadow:none; border-color:#111; }
+    .btn-action { text-transform:uppercase; letter-spacing:.12em; font-size:.7rem; font-weight:600; border-radius:0; }
+</style>
+
+<div class="form-wrapper">
+  <div class="form-card shadow-sm">
+    <h1>@ViewData["Title"]</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <input id="Name" name="Name" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <textarea id="Description" name="Description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dark btn-action">Create</button>
+            <a href="/Category" class="btn btn-outline-secondary btn-action">Back</a>
+        </div>
+    </form>
+  </div>
+</div>
