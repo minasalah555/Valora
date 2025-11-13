@@ -1,0 +1,47 @@
+@model Valora.Models.Product
+
+@{
+    ViewData["Title"] = "Add product";
+}
+
+<h4>Add product</h4>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="mb-2">
+        <label class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-2">
+            <label class="form-label">Price</label>
+            <input asp-for="Price" class="form-control" />
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label">Stock</label>
+            <input asp-for="StockQuantity" class="form-control" />
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label">Category</label>
+            <select asp-for="CategoryId" class="form-select">
+                <option value="">-- choose --</option>
+                @foreach(var c in (ViewBag.Categories as List<Valora.Models.Category> ?? new List<Valora.Models.Category>()))
+                {
+                    <option value="@c.ID">@c.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Image URL</label>
+        <input type="file" name="imageFile" class="form-control" />
+        <small class="text-muted">Upload an image file. If provided, this will replace Image URL.</small>
+    </div>
+    <button class="btn btn-dark">Save</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>

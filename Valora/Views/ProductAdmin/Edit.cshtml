@@ -1,0 +1,62 @@
+@model Valora.Models.Product
+
+@{
+    ViewData["Title"] = "Edit product";
+}
+
+<h4>Edit product</h4>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ID" />
+    <div class="mb-2">
+        <label class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-2">
+            <label class="form-label">Price</label>
+            <input asp-for="Price" class="form-control" />
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label">Stock</label>
+            <input asp-for="StockQuantity" class="form-control" />
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label">Category</label>
+            <select asp-for="CategoryId" class="form-select">
+                <option value="">-- choose --</option>
+                @foreach(var c in (ViewBag.Categories as List<Valora.Models.Category> ?? new List<Valora.Models.Category>()))
+                {
+                    var isSelected = c.ID == Model.CategoryId;
+                    if (isSelected)
+                    {
+                        <option value="@c.ID" selected="selected">@c.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@c.ID">@c.Name</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Image URL</label>
+        <div class="mb-2">
+            @if (!string.IsNullOrEmpty(Model.ImgUrl))
+            {
+                <img src="@Model.ImgUrl" alt="product" style="max-width:150px; display:block; margin-bottom:.5rem;" />
+            }
+            <input type="file" name="imageFile" class="form-control" />
+            <small class="text-muted">Upload a new image to replace the existing one.</small>
+        </div>
+    </div>
+    <button class="btn btn-dark">Save</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>
